@@ -2,12 +2,15 @@ package org.example;
 
 import com.vk.api.sdk.client.TransportClient;
 import com.vk.api.sdk.client.VkApiClient;
+import com.vk.api.sdk.client.actors.GroupActor;
 import com.vk.api.sdk.client.actors.UserActor;
 import com.vk.api.sdk.httpclient.HttpTransportClient;
 import com.vk.api.sdk.exceptions.ApiException;
 import com.vk.api.sdk.exceptions.ClientException;
 import com.vk.api.sdk.objects.UserAuthResponse;
 import com.vk.api.sdk.objects.friends.responses.GetResponse;
+import com.vk.api.sdk.objects.users.Fields;
+import java.util.Scanner;
 
 public class Main {
 
@@ -33,7 +36,7 @@ public class Main {
 
             // Создание UserActor
             UserActor actor = new UserActor(Long.valueOf(authResponse.getUserId()), authResponse.getAccessToken());
-
+            GroupActor groupActor = new GroupActor((long) APP_ID, CLIENT_SECRET);
             // Пытаемся выполнить запрос к API
             var info = vk.users().get(actor)
                     .userIds(String.valueOf(actor.getId())) // Получаем информацию о себе
@@ -41,13 +44,31 @@ public class Main {
 
             System.out.println("Успешно подключились к API ВКонтакте!");
             System.out.println(info);
-            GetResponse friendsList = vk.friends().get(actor).execute();
-            System.out.println("Список ID ваших друзей:");
-            for (Long friendId : friendsList.getItems()) {
+
+            //GetResponse friendsList = vk.friends().get(actor).fields(Fields.FIRST_NAME_NOM).execute();
+            //System.out.println("Список ID ваших друзей:");
+            //for (Long friendId : friendsList.getItems()) {
+            //    System.out.println(friendId);
+            //}
+
+            //System.out.println("Успешно подключились к API ВКонтакте! Количество друзей: " + friendsList.getCount());
+
+            // Третий запрос: получение ID пользователя с клавиатуры и запрос списка друзей
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Введите ID пользователя: ");
+            long targetUserId = scanner.nextLong();
+
+            GetResponse targetUserFriendsList = vk.friends().get(actor)
+                    .userId(targetUserId) // Указываем ID целевого пользователя
+                    .execute();
+
+            System.out.println("Список ID друзей пользователя с ID " + targetUserId + ":");
+            for (Long friendId : targetUserFriendsList.getItems()) {
                 System.out.println(friendId);
             }
 
-            System.out.println("Успешно подключились к API ВКонтакте! Количество друзей: " + friendsList.getCount());
+            System.out.println("Количество друзей у пользователя с ID " + targetUserId + ": " + targetUserFriendsList.getCount());
+
         } catch (ApiException | ClientException e) {
             System.out.println("Ошибка подключения к API: " + e.getMessage());
         }
