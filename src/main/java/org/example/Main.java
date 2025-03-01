@@ -7,6 +7,7 @@ import com.vk.api.sdk.httpclient.HttpTransportClient;
 import com.vk.api.sdk.exceptions.ApiException;
 import com.vk.api.sdk.exceptions.ClientException;
 import com.vk.api.sdk.objects.UserAuthResponse;
+import com.vk.api.sdk.objects.friends.responses.GetResponse;
 
 public class Main {
 
@@ -40,6 +41,13 @@ public class Main {
 
             System.out.println("Успешно подключились к API ВКонтакте!");
             System.out.println(info);
+            GetResponse friendsList = vk.friends().get(actor).execute();
+            System.out.println("Список ID ваших друзей:");
+            for (Long friendId : friendsList.getItems()) {
+                System.out.println(friendId);
+            }
+
+            System.out.println("Успешно подключились к API ВКонтакте! Количество друзей: " + friendsList.getCount());
         } catch (ApiException | ClientException e) {
             System.out.println("Ошибка подключения к API: " + e.getMessage());
         }
