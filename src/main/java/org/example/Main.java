@@ -67,8 +67,7 @@ public class Main {
                 int choice = scanner.nextInt();
                 scanner.nextLine(); // consume the newline
 
-                System.out.print("Введите имя файла для сохранения (без расширения): ");
-                String fileName = scanner.nextLine();
+                String fileName = profileUrl.substring(profileUrl.lastIndexOf("/") + 1);
 
                 switch (choice) {
                     case 1:
@@ -111,7 +110,7 @@ public class Main {
                 .userIds(screenName)
                 .execute();
         if (!response.isEmpty()) {
-            return response.get(0).getId();
+            return response.getFirst().getId();
         }
         return null;
     }
@@ -130,8 +129,9 @@ public class Main {
 
     private static void saveToTxt(String fileName, List<UserFull> friendsInfo) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+            // Записываем информацию о друзьях
             for (UserFull friend : friendsInfo) {
-                writer.write(friend.getFirstName() + " " + friend.getLastName());
+                writer.write("https://vk.com/id" + friend.getId() + " " + friend.getFirstName() + " " + friend.getLastName());
                 writer.newLine();
             }
             System.out.println("Данные успешно сохранены в " + fileName);
@@ -142,10 +142,13 @@ public class Main {
 
     private static void saveToCsv(String fileName, List<UserFull> friendsInfo) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
-            writer.write("First Name,Last Name");
+            // Записываем заголовок
+            writer.write("Link,First Name,Last Name");
             writer.newLine();
+
+            // Записываем информацию о друзьях
             for (UserFull friend : friendsInfo) {
-                writer.write(friend.getFirstName() + "," + friend.getLastName());
+                writer.write("https://vk.com/id" + friend.getId() + "," + friend.getFirstName() + "," + friend.getLastName());
                 writer.newLine();
             }
             System.out.println("Данные успешно сохранены в " + fileName);
@@ -154,22 +157,24 @@ public class Main {
         }
     }
 
+
     private static void saveToExcel(String fileName, List<UserFull> friendsInfo) {
-        // Для работы с Excel-файлами вам потребуется библиотека Apache POI.
-        // Убедитесь, что вы добавили соответствующую зависимость в ваш проект.
-
-        Workbook workbook = new XSSFWorkbook(); // Проверить, подключена ли библиотека
-
+        Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Друзья");
-        Row header = sheet.createRow(0);
-        header.createCell(0).setCellValue("First Name");
-        header.createCell(1).setCellValue("Last Name");
+        int rowNum = 0;
 
-        int rowNum = 1;
+        // Записываем заголовок
+        Row header = sheet.createRow(rowNum++);
+        header.createCell(0).setCellValue("Link");
+        header.createCell(1).setCellValue("First Name");
+        header.createCell(2).setCellValue("Last Name");
+
+        // Записываем информацию о друзьях
         for (UserFull friend : friendsInfo) {
             Row row = sheet.createRow(rowNum++);
-            row.createCell(0).setCellValue(friend.getFirstName());
-            row.createCell(1).setCellValue(friend.getLastName());
+            row.createCell(0).setCellValue("https://vk.com/id" + friend.getId());
+            row.createCell(1).setCellValue(friend.getFirstName());
+            row.createCell(2).setCellValue(friend.getLastName());
         }
 
         try (FileOutputStream outputStream = new FileOutputStream(fileName)) {
@@ -185,4 +190,5 @@ public class Main {
             }
         }
     }
+
 }
