@@ -71,6 +71,7 @@ public class Main {
                 GetResponse targetUserFriendsList = vk.friends().get(actor)
                         .userId(targetUserId)
                         .execute();
+                System.out.println("Программа работает, подождите.");
                 List<UserFull> friendsInfo = fetchFriendsInfo(vk, targetUserFriendsList);
 
                 System.out.println("Выберите формат для сохранения информации:");
@@ -112,7 +113,7 @@ public class Main {
      * @return идентификатор пользователя или null, если он не найден
      */
     private static Long getUserIdFromUrl(VkApiClient vk, String profileUrl) {
-        Pattern pattern = Pattern.compile("vk.com/(\\w+)");
+        Pattern pattern = Pattern.compile("vk.com/([\\w.-]+)");
         Matcher matcher = pattern.matcher(profileUrl);
 
         if (matcher.find()) {
